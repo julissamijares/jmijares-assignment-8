@@ -100,6 +100,13 @@ def do_experiments(start, end, step_num):
                 margin_width = np.min(distances)
                 margin_widths.append(margin_width)
 
+        # Annotate margin width and decision boundary equation
+        decision_eqn = f"Decision Boundary: {beta1:.2f}x1 + {beta2:.2f}x2 + {beta0:.2f} = 0"
+        margin_text = f"Margin Width: {margin_width:.2f}"
+
+        ax.text(0.05, 0.95, decision_eqn, fontsize=12, color='black', ha='left', va='top', transform=ax.transAxes)
+        ax.text(0.05, 0.90, margin_text, fontsize=12, color='black', ha='left', va='top', transform=ax.transAxes)
+
         ax.set_title(f"Shift Distance = {distance:.2f}", fontsize=16)
         ax.set_xlabel("x1")
         ax.set_ylabel("x2")
