@@ -50,6 +50,28 @@ button:hover {
     background-color: #218838;
 }
 
+/* Spacing between buttons */
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
 #results img {
     max-width: 100%;
     margin-top: 20px;

@@ -26,6 +26,9 @@ document.getElementById("experiment-form").addEventListener("submit", function(e
         return;
     }
 
+    // Show the loading screen when the experiment starts
+    document.getElementById('loading-screen').style.display = 'flex';
+
     // If all validations pass, submit the form
     fetch("/run_experiment", {
         method: "POST",
@@ -36,6 +39,9 @@ document.getElementById("experiment-form").addEventListener("submit", function(e
     })
     .then(response => response.json())
     .then(data => {
+        // Hide the loading screen once the results are ready
+        document.getElementById('loading-screen').style.display = 'none';
+
         // Show and set images if they exist
         const resultsDiv = document.getElementById("results");
         resultsDiv.style.display = "block";
@@ -55,5 +61,6 @@ document.getElementById("experiment-form").addEventListener("submit", function(e
     .catch(error => {
         console.error("Error running experiment:", error);
         alert("An error occurred while running the experiment.");
+        document.getElementById('loading-screen').style.display = 'none';  // Hide the loading screen on error
     });
 });

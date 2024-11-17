@@ -1,13 +1,26 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
-from logistic_regression_solution import do_experiments
+from logistic_regression import do_experiments
 
 app = Flask(__name__)
 
 # Define the main route
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        # Handle form submission (start, end, step_num)
+        start = float(request.form.get('start'))
+        end = float(request.form.get('end'))
+        step_num = int(request.form.get('step_num'))
+
+        # Run the experiment with the provided parameters
+        do_experiments(start, end, step_num)
+
+        # Return updated values to the template
+        return render_template('index.html', start=start, end=end, step_num=step_num)
+    else:
+        # Display the form without any pre-filled values (empty inputs)
+        return render_template('index.html', start=None, end=None, step_num=None)
 
 # Route to handle experiment parameters and trigger the experiment
 @app.route('/run_experiment', methods=['POST'])
