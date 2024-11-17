@@ -18,15 +18,18 @@ def generate_ellipsoid_clusters(distance, n_samples=100, cluster_std=0.5):
     X1 = np.random.multivariate_normal(mean=[1, 1], cov=covariance_matrix, size=n_samples)
     y1 = np.zeros(n_samples)
 
-    # Generate the second cluster (class 1) and apply shift
+    # Generate the second cluster (class 1) and apply shift along y = -x direction
+    shift_vector = np.array([1, -1])
+    shift_vector = shift_vector / np.linalg.norm(shift_vector)  # Normalize the vector
     X2 = np.random.multivariate_normal(mean=[1, 1], cov=covariance_matrix, size=n_samples)
-    X2 += np.array([distance, distance])
+    X2 += distance * shift_vector  # Apply shift along the y = -x direction
     y2 = np.ones(n_samples)
 
     # Combine the clusters into one dataset
     X = np.vstack((X1, X2))
     y = np.hstack((y1, y2))
     return X, y
+
 
 # Function to fit logistic regression and extract coefficients
 def fit_logistic_regression(X, y):
@@ -70,13 +73,13 @@ def do_experiments(start, end, step_num):
         loss_list.append(loss)
 
         # Plot the dataset and decision boundary
-        plt.subplot(n_rows, n_cols, i)
-        plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], c='blue', label='Class 0', alpha=0.6)
-        plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], c='red', label='Class 1', alpha=0.6)
+        ax = plt.subplot(n_rows, n_cols, i)
+        ax.scatter(X[y == 0][:, 0], X[y == 0][:, 1], c='blue', label='Class 0', alpha=0.6)
+        ax.scatter(X[y == 1][:, 0], X[y == 1][:, 1], c='red', label='Class 1', alpha=0.6)
 
         x_vals = np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 100)
         y_vals = slope * x_vals + intercept
-        plt.plot(x_vals, y_vals, 'k--', label='Decision Boundary')
+        ax.plot(x_vals, y_vals, 'k--', label='Decision Boundary')
 
         # Calculate margin width between 70% confidence contours
         x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
@@ -87,8 +90,8 @@ def do_experiments(start, end, step_num):
         contour_levels = [0.7, 0.8, 0.9]
         alphas = [0.05, 0.1, 0.15]
         for level, alpha in zip(contour_levels, alphas):
-            class_1_contour = plt.contourf(xx, yy, Z, levels=[level, 1.0], colors=['red'], alpha=alpha)
-            class_0_contour = plt.contourf(xx, yy, Z, levels=[0.0, 1 - level], colors=['blue'], alpha=alpha)
+            class_1_contour = ax.contourf(xx, yy, Z, levels=[level, 1.0], colors=['red'], alpha=alpha)
+            class_0_contour = ax.contourf(xx, yy, Z, levels=[0.0, 1 - level], colors=['blue'], alpha=alpha)
 
             if level == 0.7:
                 class_1_vertices = class_1_contour.allsegs[0][0]
@@ -97,10 +100,14 @@ def do_experiments(start, end, step_num):
                 margin_width = np.min(distances)
                 margin_widths.append(margin_width)
 
-        plt.title(f"Shift Distance = {distance:.2f}", fontsize=16)
-        plt.xlabel("x1")
-        plt.ylabel("x2")
-        plt.legend()
+        ax.set_title(f"Shift Distance = {distance:.2f}", fontsize=16)
+        ax.set_xlabel("x1")
+        ax.set_ylabel("x2")
+        ax.legend()
+
+        # Adjust axis limits dynamically
+        ax.set_xlim(X[:, 0].min() - 1, X[:, 0].max() + 1)
+        ax.set_ylim(X[:, 1].min() - 1, X[:, 1].max() + 1)
 
         sample_data[distance] = (X, y, model, beta0, beta1, beta2)
 
@@ -154,6 +161,7 @@ def do_experiments(start, end, step_num):
 
     plt.tight_layout()
     plt.savefig(f"{result_dir}/parameters_vs_shift_distance.png")
+
 
 if __name__ == "__main__":
     start = 0.25
